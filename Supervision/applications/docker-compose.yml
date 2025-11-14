@@ -1,0 +1,33 @@
+services:
+  wordpress1:
+    image: wordpress
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db1
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    ports:
+      - "8081:80"
+    depends_on:
+      - db1
+    networks:
+      - tp_network
+
+  db1:
+    image: mysql:5.7
+    restart: always
+    environment:  # ← Corregido: "environnement" → "environment"
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser  # ← Corregido: era "examplepass", debe ser el usuario
+      MYSQL_PASSWORD: examplepass  # ← ¡Falta esta línea! Necesaria para el usuario
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    ports:
+      - "8082:80"  # ← Corregido: MySQL usa el puerto 3306, no 80
+                     #     (o quítalo si no necesitas acceso externo)
+    networks:
+      - tp_network  # ← Corregido: "tpnetwork" → "tp_network" (debe coincidir)
+
+networks:
+  tp_network:
+    driver: bridge

@@ -1,0 +1,11 @@
+groups:
+  - name: alert.rules
+    rules:
+      - alert: containerProbalyDown
+        expr: time() - container_last_seen > 30
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} is probably down"
+          description: "The container {{ $labels.name }} has not been seen for more than 30 seconds."
