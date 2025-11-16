@@ -1,11 +1,20 @@
 groups:
   - name: alert.rules
     rules:
-      - alert: containerProbalyDown
-        expr: time() - container_last_seen > 30
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name!=""}) or (time() - container_last_seen{name!=""} > 60)
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "Container {{ $labels.name }} is probably down"
-          description: "The container {{ $labels.name }} has not been seen for more than 30 seconds."
+          description: "The container {{ $labels.name }} has not been seen for more than 60 seconds."
+      
+      - alert: ContainerNotRunning
+        expr: container_last_seen{name!="", name!~"POD|k8s_.*"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is not running"
+          description: "The container {{ $labels.name }} has stopped."
